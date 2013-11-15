@@ -1,5 +1,5 @@
-var assert = require('assert');
-var Worker = require('../lib/worker');
+require('./test-helper');
+var Worker = firework.Worker;
 
 describe('A Worker', function () {
 
@@ -11,7 +11,7 @@ describe('A Worker', function () {
   }
 
   beforeEach(function () {
-    worker = new Worker('https://queue-tests.firebaseio.com', performJob);
+    worker = new Worker(BASE_REF, performJob);
   });
 
   afterEach(function () {

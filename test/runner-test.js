@@ -1,12 +1,12 @@
-var assert = require('assert');
-var Runner = require('../lib/Runner');
+require('./test-helper');
+var Runner = firework.Runner;
 
 describe('A Runner', function () {
 
   var runner;
 
   beforeEach(function () {
-    runner = new Runner('https://queue-tests.firebaseio.com');
+    runner = new Runner(BASE_REF);
   });
 
   afterEach(function (done) {
