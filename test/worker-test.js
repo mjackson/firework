@@ -11,7 +11,10 @@ describe('A Worker', function () {
   }
 
   beforeEach(function () {
-    worker = new Worker(BASE_REF, performJob);
+    worker = new Worker({
+      queue: BASE_REF,
+      performJob: performJob
+    });
   });
 
   afterEach(function () {

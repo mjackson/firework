@@ -9,4 +9,7 @@ before(function (done) {
   BASE_REF.once('value', function () {
     done();
   });
+
+  // This can take a while sometimes.
+  this.timeout(0);
 });
