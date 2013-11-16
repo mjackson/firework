@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var argv = require('optimist')
-  .usage('Manage a firework instance\nUsage: $0 ')
+  .usage('Manage a firework instance\nUsage: firework -q [queue] -m [module]')
   .options('q', { alias: 'queue', demand: true, describe: 'The Firebase URL that holds the queue' })
   .options('a', { alias: 'auth', describe: 'The Firebase authentication token' })
   .options('m', { alias: 'module', demand: true, describe: 'A module file that exports a function to process jobs'})
