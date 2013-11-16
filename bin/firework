@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-var Runner = require('../lib').Runner;
-
 var argv = require('optimist')
   .usage('Manage a firework instance\nUsage: $0 ')
   .options('q', { alias: 'queue', demand: true, describe: 'The Firebase URL that holds the queue' })
@@ -17,6 +15,7 @@ if (typeof performJob !== 'function') {
   process.exit(1);
 }
 
+var Runner = require('../lib').Runner;
 var runner = new Runner({
   queue: argv.q,
   auth: argv.a,
