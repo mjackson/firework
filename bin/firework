@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+var Firebase = require('firebase');
+var Runner = require('../lib').Runner;
+
 var argv = require('optimist')
   .usage('Manage a firework instance\nUsage: firework -q [queue] -m [module]')
   .options('q', { alias: 'queue', demand: true, describe: 'The Firebase URL that holds the queue' })
@@ -15,19 +18,29 @@ if (typeof performJob !== 'function') {
   process.exit(1);
 }
 
-var Runner = require('../lib').Runner;
-var runner = new Runner({
-  queue: argv.q,
-  auth: argv.a,
-  performJob: performJob
-});
-
-runner.setNumberOfWorkers(argv.w);
-
-process.on('QUIT', function () {
-  console.log('QUIT received, gracefully stopping all workers');
-
-  runner.stopAllWorkers(function () {
-    process.exit();
+var queueRef = new Firebase(argv.q);
+if (argv.a) {
+  queueRef.auth(argv.a, function (error) {
+    if (error) throw error;
+    startRunner();
   });
-});
+} else {
+  startRunner();
+}
+
+function startRunner() {
+  var runner = new Runner({
+    queue: queueRef,
+    performJob: performJob
+  });
+
+  runner.setNumberOfWorkers(argv.w);
+
+  process.once('QUIT', function () {
+    console.log('QUIT received, gracefully stopping all workers');
+
+    runner.stopAllWorkers(function () {
+      process.exit();
+    });
+  });
+}
