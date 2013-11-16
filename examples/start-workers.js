@@ -1,7 +1,8 @@
 var Firebase = require('firebase');
+var Queue = require('../lib').Queue;
 var Worker = require('../lib').Worker;
 
-var queue = new Firebase('https://firework-tests.firebaseio.com');
+var queue = new Queue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 
 for (var i = 0; i < numWorkers; ++i) {
@@ -11,7 +12,8 @@ for (var i = 0; i < numWorkers; ++i) {
     var worker = new Worker({
       queue: queue,
       performJob: function (job, callback) {
-        setTimeout(callback, Math.random() * 2000 | 0);
+        // Simulate variable lengths of time.
+        setTimeout(callback, Math.random() * 2000);
       }
     });
 
