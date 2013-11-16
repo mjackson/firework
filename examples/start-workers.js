@@ -17,16 +17,16 @@ for (var i = 0; i < numWorkers; ++i) {
       }
     });
 
-    worker.on('idle', function () {
-      console.log('worker ' + n + ' is idle');
-    });
-
     worker.on('start', function (job) {
       console.log('worker ' + n + ' started job ' + job.count);
     });
 
     worker.on('finish', function (job) {
       console.log('worker ' + n + ' finished job ' + job.count);
+    });
+
+    worker.on('idle', function () {
+      console.log('worker ' + n + ' is idle');
     });
 
     // Start the worker.

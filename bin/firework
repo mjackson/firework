@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Worker = require('../lib').Worker;
+var Runner = require('../lib').Runner;
 
 var argv = require('optimist')
   .usage('Manage a firework instance\nUsage: $0 ')
@@ -17,55 +17,18 @@ if (typeof performJob !== 'function') {
   process.exit(1);
 }
 
-var numWorkers = argv.w;
-console.log('starting ' + numWorkers + ' worker' + (numWorkers === 1 ? '' : 's'));
+var runner = new Runner({
+  queue: argv.q,
+  auth: argv.a,
+  performJob: performJob
+});
 
-var workers = [];
-for (var i = 0; i < numWorkers; ++i) {
-  (function (n) {
-
-    var workerNumber = n + 1;
-    var worker = new Worker({
-      queue: argv.q,
-      auth: argv.a,
-      performJob: performJob
-    });
-
-    worker.on('start', function (job) {
-      console.log('worker ' + workerNumber + ' started job ' + job._queueName);
-    });
-
-    worker.on('failure', function (job, error) {
-      console.log('job ' + job._queueName + ' failed, error: ' + error.toString());
-    });
-
-    worker.on('idle', function () {
-      console.log('worker ' + workerNumber + ' is idle');
-    });
-
-    worker.start();
-    workers.push(worker);
-
-  }(i));
-}
-
-function stopAllWorkers(callback) {
-  var numStoppedWorkers = 0;
-  function workerStopped() {
-    if (++numStoppedWorkers === workers.length && callback) {
-      callback();
-    }
-  }
-
-  workers.forEach(function (worker) {
-    worker.stop(workerStopped);
-  });
-}
+runner.setNumberOfWorkers(argv.w);
 
 process.on('QUIT', function () {
   console.log('QUIT received, gracefully stopping all workers');
 
-  stopAllWorkers(function () {
+  runner.stopAllWorkers(function () {
     process.exit();
   });
 });
