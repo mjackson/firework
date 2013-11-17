@@ -7,7 +7,7 @@ var maxCount = 30;
 var interval = 10;
 
 // Clear all pending/started jobs from the queue.
-queue.clear();
+queue.removeAllJobs();
 
 var numGeneratedJobs = 0;
 var count = 0;

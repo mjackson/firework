@@ -7,7 +7,7 @@ describe('A Queue', function () {
 
   beforeEach(function (done) {
     queue = new Queue(BASE_REF);
-    queue.clear(done);
+    queue.removeAllJobs(done);
   });
 
   describe('when a job is added', function () {
