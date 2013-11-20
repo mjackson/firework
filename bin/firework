@@ -19,8 +19,8 @@ var runner = new firework.Runner(createWorker);
 
 runner.setNumberOfWorkers(argv.w);
 
-process.once('QUIT', function () {
-  console.log('QUIT received, gracefully stopping all workers');
+process.once('SIGTERM', function () {
+  console.log('SIGTERM received, gracefully stopping all workers');
 
   runner.stopAllWorkers(function () {
     process.exit();
