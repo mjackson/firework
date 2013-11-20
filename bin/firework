@@ -1,46 +1,28 @@
 #!/usr/bin/env node
 
 var Firebase = require('firebase');
-var Runner = require('../lib').Runner;
+var firework = require('../lib');
 
 var argv = require('optimist')
-  .usage('Manage a firework instance\nUsage: firework -q [queue] -m [module]')
-  .options('q', { alias: 'queue', demand: true, describe: 'The Firebase URL that holds the queue' })
-  .options('a', { alias: 'auth', describe: 'The Firebase authentication token' })
-  .options('m', { alias: 'module', demand: true, describe: 'A module file that exports a function to process jobs'})
-  .options('w', { alias: 'workers', default: 1, describe: 'The number of workers to spawn' })
+  .usage('Manage a firework instance\nUsage: firework create-worker.js [ -w numWorkers ]')
+  .options('w', { describe: 'The number of workers to run', default: 1 })
   .argv;
 
-var moduleFile = require('path').join(process.cwd(), argv.m);
-var performJob = require(moduleFile);
-if (typeof performJob !== 'function') {
-  console.error('Module "' + moduleFile + '" does not export a function');
+if (argv._.length !== 1) {
+  console.error('Usage: firework create-worker.js [ -w numWorkers ]');
   process.exit(1);
 }
 
-var queueRef = new Firebase(argv.q);
-if (argv.a) {
-  queueRef.auth(argv.a, function (error) {
-    if (error) throw error;
-    startRunner();
+var workerFile = require('path').join(process.cwd(), argv._[0]);
+var createWorker = require(workerFile);
+var runner = new firework.Runner(createWorker);
+
+runner.setNumberOfWorkers(argv.w);
+
+process.once('QUIT', function () {
+  console.log('QUIT received, gracefully stopping all workers');
+
+  runner.stopAllWorkers(function () {
+    process.exit();
   });
-} else {
-  startRunner();
-}
-
-function startRunner() {
-  var runner = new Runner({
-    queue: queueRef,
-    performJob: performJob
-  });
-
-  runner.setNumberOfWorkers(argv.w);
-
-  process.once('QUIT', function () {
-    console.log('QUIT received, gracefully stopping all workers');
-
-    runner.stopAllWorkers(function () {
-      process.exit();
-    });
-  });
-}
+});

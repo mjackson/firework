@@ -1,12 +1,18 @@
 require('./test-helper');
 var Runner = firework.Runner;
+var Worker = firework.Worker;
 
 describe('A Runner', function () {
 
-  var runner;
+  function createWorker() {
+    return new Worker(BASE_REF, function (job, callback) {
+      callback(null);
+    });
+  }
 
+  var runner;
   beforeEach(function () {
-    runner = new Runner({ queue: BASE_REF });
+    runner = new Runner(createWorker);
   });
 
   afterEach(function (done) {

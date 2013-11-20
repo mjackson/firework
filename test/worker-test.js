@@ -4,16 +4,11 @@ var Worker = firework.Worker;
 describe('A Worker', function () {
 
   var worker, performedJob;
-
-  function performJob(job, callback) {
-    performedJob = job;
-    callback(null);
-  }
-
   beforeEach(function () {
-    worker = new Worker({
-      queue: BASE_REF,
-      performJob: performJob
+    performedJob = null;
+    worker = new Worker(BASE_REF, function (job, callback) {
+      performedJob = job;
+      callback(null);
     });
   });
 

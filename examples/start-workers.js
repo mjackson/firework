@@ -9,12 +9,9 @@ for (var i = 0; i < numWorkers; ++i) {
   (function (n) {
 
     // Create a new worker.
-    var worker = new Worker({
-      queue: queue,
-      performJob: function (job, callback) {
-        // Simulate variable lengths of time.
-        setTimeout(callback, Math.random() * 2000);
-      }
+    var worker = new Worker(queue, function (job, callback) {
+      // Simulate variable lengths of time.
+      setTimeout(callback, Math.random() * 2000);
     });
 
     worker.on('start', function (job) {
