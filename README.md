@@ -1,35 +1,47 @@
 Firework is a distributed, fault-tolerant work queue for Firebase.
 
-### Usage
+### Creating Jobs
+
+Since you're using Firebase, you'll probably want to create jobs directly from the browser. To do this, setup a new Firebase location reference that will serve as your queue. To start, you may want to make sure that this location is writable by everyone but only readable by your server process.
+
+In this example, we'll assume that your queue is located at `https://my-firebase.firebaseio.com/myQueue`. In your client code, you'll want to create a new child of the `pendingJobs` child of that location reference, like so:
+
+```js
+var jobs = new Firebase('https://my-firebase.firebaseio.com/myQueue/pendingJobs');
+jobs.push({ my: 'job' });
+```
+
+That's it. You've now pushed a job onto the queue for a worker to process sometime later.
+
+It should be noted that workers pull from the *beginning* of the queue (FIFO). If you have jobs of varying importance you can use a [priority](https://www.firebase.com/docs/ordered-data.html) to run some jobs before others.
+
+```js
+jobs.push().setWithPriority({ important: 'job' }, 0);
+jobs.push().setWithPriority({ less: 'important' }, 100);
+```
+
+### Processing Jobs
 
 The easiest way to start processing the jobs on a Firework queue is to use the `firework` command:
 
 ```sh
-$ firework -q https://my-firebase.firebaseio.com/my-queue -m ./process-job.js
+$ firework create-worker.js -w 5
 ```
 
-A Firework queue stores all of its jobs under a single Firebase location reference, designated by the `-q` option. The `-m` option specifies the path to a module file that exports a function you use to process jobs. It should look like this:
+The `create-worker.js` module used in the command above should export a function that is used to create new workers. To process jobs from the queue we pushed onto in the **Creating Jobs** section above, our `create-worker.js` file could look something like this:
 
 ```js
-module.exports = function (job, callback) {
-  doSomeWork(job, function (error, result) {
-    // log/check the result, etc.
+var firework = require('firework');
+var queue = new firework.Queue('https://my-firebase.firebaseio.com/myQueue');
+
+module.exports = function () {
+  return new firework.Worker(queue, function (job, callback) {
+    // do some work...
+    // call the callback when you're done, optionally with
+    // any error that was encountered while doing the work.
     callback(error);
   });
 };
 ```
 
-The `job` argument should be a plain JavaScript object that contains the data you need to do the necessary work. You can add jobs to the queue by `push()`ing onto the `pendingJobs` ref directly underneath the primary ref you're using for the queue, e.g.:
-
-```js
-var queueRef = new Firebase('https://my-firebase.firebaseio.com/my-queue');
-queueRef.child('pendingJobs').push({ my: 'job' });
-```
-
-Workers pull from the *beginning* of the queue (FIFO). If you have jobs of varying importance you can use a [priority](https://www.firebase.com/docs/ordered-data.html) to run some jobs before others.
-
-```js
-var pendingJobs = queueRef.child('pendingJobs');
-pendingJobs.push().setWithPriority({ important: 'job' }, 0);
-pendingJobs.push().setWithPriority({ less: 'important' }, 100);
-```
+The `-w` argument specifies the number of workers to use. When a worker has an unrecoverable error it is removed from the worker pool and replaced with a new one.
