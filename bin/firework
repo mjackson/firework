@@ -4,14 +4,17 @@ var Firebase = require('firebase');
 var firework = require('../lib');
 
 var argv = require('optimist')
-  .usage('Manage a firework instance\nUsage: firework create-worker.js [ -w numWorkers ]')
+  .usage([
+    'Manage a firework instance',
+    'Usage: firework create-worker.js [ -w numWorkers ]',
+    '',
+    '  The create-worker.js module should export a single function',
+    '  that returns a new firework.Worker object when invoked. This',
+    '  function is used to create new workers as needed.'
+  ].join('\n'))
+  .demand(1)
   .options('w', { describe: 'The number of workers to run', default: 1 })
   .argv;
-
-if (argv._.length !== 1) {
-  console.error('Usage: firework create-worker.js [ -w numWorkers ]');
-  process.exit(1);
-}
 
 var workerFile = require('path').join(process.cwd(), argv._[0]);
 var createWorker = require(workerFile);
