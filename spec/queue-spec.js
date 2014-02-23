@@ -1,4 +1,4 @@
-require('./test-helper');
+require('./helper');
 var Queue = firework.Queue;
 
 describe('A Queue', function () {

@@ -4,9 +4,6 @@
   "description": "A distributed, fault-tolerant work queue for Firebase",
   "main": "modules/index.js",
   "bin": "./bin/firework",
-  "directories": {
-    "test": "test"
-  },
   "dependencies": {
     "firebase": "~0.6.11",
     "optimist": "~0.6.0"
@@ -15,7 +12,7 @@
     "mocha": "~1.14.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha spec"
   },
   "repository": {
     "type": "git",

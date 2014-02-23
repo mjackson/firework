@@ -1,4 +1,4 @@
-require('./test-helper');
+require('./helper');
 var Runner = firework.Runner;
 var Worker = firework.Worker;
 
