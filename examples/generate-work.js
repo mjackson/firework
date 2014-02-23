@@ -1,8 +1,10 @@
-var Firebase = require('firebase');
-var Queue = require('../lib').Queue;
+/**
+ * This example generates a bunch of jobs. Use it together
+ * with the other example scripts so they have some work to do.
+ */
 
-var queue = new Queue('https://firework-tests.firebaseio.com');
-
+var firework = require('../modules');
+var queue = new firework.Queue('https://firework-tests.firebaseio.com');
 var maxCount = 30;
 var interval = 10;
 

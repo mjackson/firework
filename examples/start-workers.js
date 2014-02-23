@@ -1,15 +1,20 @@
-var Firebase = require('firebase');
-var Queue = require('../lib').Queue;
-var Worker = require('../lib').Worker;
+/**
+ * This example manually creates a set number of workers and
+ * sets up event listeners on each that log stuff to the console
+ * when interesting things happen. This is a low-level interface
+ * to managing workers. For a higher-level interface, see the
+ * run-workers.js example.
+ */
 
-var queue = new Queue('https://firework-tests.firebaseio.com');
+var firework = require('../modules');
+var queue = new firework.Queue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 
 for (var i = 0; i < numWorkers; ++i) {
   (function (n) {
 
     // Create a new worker.
-    var worker = new Worker(queue, function (job, callback) {
+    var worker = new firework.Worker(queue, function (job, callback) {
       // Simulate variable lengths of time.
       setTimeout(callback, Math.random() * 2000);
     });

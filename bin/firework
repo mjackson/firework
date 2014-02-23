@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-var Firebase = require('firebase');
-var firework = require('../lib');
+var firework = require('../modules');
 
 var argv = require('optimist')
   .usage([

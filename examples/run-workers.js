@@ -1,18 +1,23 @@
-var Firebase = require('firebase');
-var Queue = require('../lib').Queue;
-var Runner = require('../lib').Runner;
-var Worker = require('../lib').Worker;
+/**
+ * This example uses a Runner to manage Worker instances. A
+ * Runner is able to gracefully increase/decrease the number
+ * of workers in a worker pool and replace workers that have
+ * errors with new ones.
+ */
 
-var queue = new Queue('https://firework-tests.firebaseio.com');
+var firework = require('../modules');
+var queue = new firework.Queue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 
-var runner = new Runner(function () {
-  var worker = new Worker(queue, function (job, callback) {
+// This function is used to create a new worker.
+function createWorker() {
+  return new firework.Worker(queue, function (job, callback) {
     // Simulate variable lengths of time.
     setTimeout(callback, Math.random() * 2000);
   });
+}
 
-  return worker;
-});
+// Use a firework.Runner to manage worker instances.
+var runner = new firework.Runner(createWorker);
 
 runner.setNumberOfWorkers(numWorkers);
