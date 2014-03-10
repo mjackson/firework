@@ -36,9 +36,8 @@ Runner.prototype.setNumberOfWorkers = function (numWorkers, callback) {
 
     var numStoppedWorkers = 0;
     function workerStopped() {
-      if (++numStoppedWorkers === removedWorkers.length && isFunction(callback)) {
+      if (++numStoppedWorkers === removedWorkers.length && isFunction(callback))
         callback(removedWorkers);
-      }
     }
 
     removedWorkers.forEach(function (worker) {
@@ -56,9 +55,8 @@ Runner.prototype.setNumberOfWorkers = function (numWorkers, callback) {
 
   workers.push.apply(workers, newWorkers);
 
-  if (isFunction(callback)) {
+  if (isFunction(callback))
     callback(newWorkers);
-  }
 };
 
 /**
@@ -139,5 +137,5 @@ Runner.prototype.toString = function () {
 };
 
 function isFunction(object) {
-  return object && typeof object === 'function';
+  return typeof object === 'function';
 }

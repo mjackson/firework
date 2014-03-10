@@ -32,9 +32,8 @@ function Worker(queue, performJob) {
     throw new Error('Worker#performJob must be a function');
   }
 
-  if (!(queue instanceof Queue)) {
+  if (!(queue instanceof Queue))
     queue = new Queue(queue);
-  }
 
   this.queue = queue;
   this.failureCount = 0;
@@ -164,9 +163,8 @@ Worker.prototype._tryToWork = function (previousJob) {
         // We may be in a bad state here. Notify listeners and stop working.
         this.emit('error', error);
       } else if (committed && nextJob) {
-        if (!nextJob._name) {
+        if (!nextJob._name)
           nextJob._name = ref.name();
-        }
 
         // We successfully claimed a job. Start working on it.
         this.startJob(nextJob);
@@ -185,5 +183,5 @@ Worker.prototype.toString = function () {
 };
 
 function isFunction(object) {
-  return object && typeof object === 'function';
+  return typeof object === 'function';
 }

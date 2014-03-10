@@ -12,13 +12,11 @@ module.exports = Queue;
  * easily by moving them back to the pending list (see retryFailedJobs).
  */
 function Queue(ref) {
-  if (typeof ref === 'string') {
+  if (typeof ref === 'string')
     ref = new Firebase(ref);
-  }
 
-  if (!(ref instanceof Firebase)) {
+  if (!(ref instanceof Firebase))
     throw new Error('Invalid Firebase location reference: ' + ref);
-  }
 
   this.ref = ref;
   this.pendingJobs = ref.child('pendingJobs');
@@ -108,15 +106,13 @@ Queue.prototype.retryFailedJobs = function (maxJobs, callback) {
           child.ref().remove();
         });
 
-        if (++numRetriedJobs === maxJobs) {
+        if (++numRetriedJobs === maxJobs)
           return true; // Cancel forEach loop.
-        }
       }
     }.bind(this));
 
-    if (isFunction(callback)) {
+    if (isFunction(callback))
       callback(numRetriedJobs);
-    }
   }, this);
 };
 
@@ -150,19 +146,21 @@ Queue.prototype.toString = function () {
 
 /* worker actions */
 
+var SERVER_TIMESTAMP = Firebase.ServerValue.TIMESTAMP;
+
 Queue.prototype._jobWasStarted = function (job) {
-  var properties = mergeProperties({ _startedAt: serverTimestamp() }, job);
+  var properties = mergeProperties({ _startedAt: SERVER_TIMESTAMP }, job);
   this.startedJobs.child(job._name).update(properties, afterSave);
 };
 
 Queue.prototype._jobDidFail = function (job, error) {
-  var properties = mergeProperties({ _failedAt: serverTimestamp() }, job);
+  var properties = mergeProperties({ _failedAt: SERVER_TIMESTAMP }, job);
   if (error) properties._error = error.toString();
   this.startedJobs.child(job._name).update(properties, afterSave);
 };
 
 Queue.prototype._jobDidSucceed = function (job) {
-  var properties = mergeProperties({ _succeededAt: serverTimestamp() }, job);
+  var properties = mergeProperties({ _succeededAt: SERVER_TIMESTAMP }, job);
   this.startedJobs.child(job._name).update(properties, afterSave);
 };
 
@@ -172,20 +170,15 @@ function afterSave(error) {
   if (error) throw error;
 }
 
-function serverTimestamp() {
-  return Firebase.ServerValue.TIMESTAMP;
-}
-
 function mergeProperties(target, source) {
   for (var property in source) {
-    if (source.hasOwnProperty(property)) {
+    if (source.hasOwnProperty(property))
       target[property] = source[property];
-    }
   }
 
   return target;
 }
 
 function isFunction(object) {
-  return object && typeof object === 'function';
+  return typeof object === 'function';
 }
