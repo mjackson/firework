@@ -54,20 +54,20 @@ Worker.prototype._bindToQueue = function (queue) {
  * Starts this worker.
  */
 Worker.prototype.start = function () {
-  if (this.query)
-    return
+  if (this._query)
+    return;
 
   var query = this.queue.createQuery();
 
-  // This event sometimes gets fired more often than it should. It seems the Firebase
-  // client errs on the side of emitting extraneous events, which isn't necessarily
-  // bad. We just need to know that.
+  // The "child_added" event sometimes gets fired more often than it should. It
+  // seems the Firebase client errs on the side of emitting extraneous events,
+  // which isn't necessarily bad. We just need to know that.
   query.on('child_added', function (snapshot) {
     this._nextSnapshot = snapshot;
     this._tryToWork();
   }, this);
 
-  this.query = query;
+  this._query = query;
 };
 
 /**
@@ -75,9 +75,9 @@ Worker.prototype.start = function () {
  * any work that is currently in progress.
  */
 Worker.prototype.stop = function (callback) {
-  if (this.query) {
-    this.query.off();
-    this.query = null;
+  if (this._query) {
+    this._query.off();
+    this._query = null;
   }
 
   if (!isFunction(callback))
