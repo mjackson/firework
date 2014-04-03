@@ -7,14 +7,14 @@
  */
 
 var firework = require('../modules');
-var queue = new firework.Queue('https://firework-tests.firebaseio.com');
+var queue = firework.createQueue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 
 for (var i = 0; i < numWorkers; ++i) {
   (function (n) {
 
     // Create a new worker.
-    var worker = new firework.Worker(queue, function (job, callback) {
+    var worker = firework.createWorker(queue, function (job, callback) {
       // Simulate variable lengths of time.
       setTimeout(callback, Math.random() * 2000);
     });
