@@ -7,12 +7,10 @@ module.exports = Runner;
  * to create new workers.
  */
 function Runner(createWorker) {
-  if (isFunction(createWorker)) {
-    this._createWorker = createWorker;
-  } else {
+  if (!isFunction(createWorker))
     throw new Error('Runner#createWorker must be a function');
-  }
 
+  this._createWorker = createWorker;
   this.workerId = 0;
   this.workers = [];
 }
@@ -65,10 +63,10 @@ Runner.prototype.setNumberOfWorkers = function (numWorkers, callback) {
 Runner.prototype.incrementWorkers = function (howMany, callback) {
   if (isFunction(howMany)) {
     callback = howMany;
-    howMany = null;
+    howMany = 1;
   }
 
-  this.setNumberOfWorkers(this.workers.length + (howMany || 1), callback);
+  this.setNumberOfWorkers(this.workers.length + howMany, callback);
 };
 
 /**
@@ -77,10 +75,10 @@ Runner.prototype.incrementWorkers = function (howMany, callback) {
 Runner.prototype.decrementWorkers = function (howMany, callback) {
   if (isFunction(howMany)) {
     callback = howMany;
-    howMany = null;
+    howMany = 1;
   }
 
-  this.setNumberOfWorkers(this.workers.length - (howMany || 1), callback);
+  this.setNumberOfWorkers(this.workers.length - howMany, callback);
 };
 
 /**
@@ -96,9 +94,8 @@ Runner.prototype.stopAllWorkers = function (callback) {
 Runner.prototype.createWorker = function (id) {
   var worker = this._createWorker(id);
 
-  if (!(worker instanceof Worker)) {
+  if (!(worker instanceof Worker))
     throw new Error('Runner#createWorker must return a Worker');
-  }
 
   worker.on('error', this.replaceWorker.bind(this, worker));
 
@@ -124,12 +121,13 @@ Runner.prototype.replaceWorker = function (worker) {
   var workers = this.workers;
   var index = workers.indexOf(worker);
 
-  if (index !== -1) {
-    // Remove this worker and add a new one. When a worker emits
-    // "error" it immediately stops working so no need to stop it.
-    workers.splice(index, 1);
-    this.incrementWorkers(1);
-  }
+  if (index === -1)
+    return;
+
+  // Remove this worker and add a new one. When a worker emits
+  // "error" it immediately stops working so no need to stop it.
+  workers.splice(index, 1);
+  this.incrementWorkers(1);
 };
 
 Runner.prototype.toString = function () {

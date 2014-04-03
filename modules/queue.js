@@ -41,12 +41,8 @@ function Queue(ref) {
  * Returns the newly created child location reference.
  */
 Queue.prototype.addJob = function (job, callback) {
-  var ref;
-  if (job._name) {
-    ref = this.pendingJobs.child(job._name);
-  } else {
-    ref = this.pendingJobs.push();
-  }
+  var pendingJobs = this.pendingJobs;
+  var ref = job._name ? pendingJobs.child(job._name) : pendingJobs.push();
 
   ref.set(job, callback);
 
@@ -167,7 +163,8 @@ Queue.prototype._jobDidSucceed = function (job) {
 function afterSave(error) {
   // An error here probably means there is a configuration
   // or permissions error. Fail fast.
-  if (error) throw error;
+  if (error)
+    throw error;
 }
 
 function mergeProperties(target, source) {

@@ -163,6 +163,7 @@ Worker.prototype._tryToWork = function (previousJob) {
         // We may be in a bad state here. Notify listeners and stop working.
         this.emit('error', error);
       } else if (committed && nextJob) {
+        // Ensure the job has a name.
         if (!nextJob._name)
           nextJob._name = ref.name();
 
