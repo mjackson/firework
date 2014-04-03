@@ -73,6 +73,14 @@ If a job fails, it will have `_failedAt` and `_error` properties. You can use th
 queue.retryFailedJobs();
 ```
 
+### Installation
+
+You can install Firework using [npm](https://www.npmjs.org/):
+
+```sh
+$ npm install firework
+```
+
 ### Tests
 
 To run the tests, do:
