@@ -99,25 +99,28 @@ Queue.prototype.retryFailedJobs = function (maxJobs, callback) {
   maxJobs = maxJobs || 0;
   var numRetriedJobs = 0;
 
+  var self = this;
   this.startedJobs.once('value', function (snapshot) {
     var job;
     snapshot.forEach(function (child) {
       job = child.val();
 
-      if (isFailedJob(job)) {
-        // Retry and remove from startedJobs.
-        this.addJob(job, function () {
-          child.ref().remove();
-        });
+      if (!isFailedJob(job))
+        return;
 
-        if (++numRetriedJobs === maxJobs)
-          return true; // Cancel forEach loop.
-      }
-    }.bind(this));
+      self._retryJob(child.ref(), job);
+
+      if (++numRetriedJobs === maxJobs)
+        return true; // Cancel forEach loop.
+    });
 
     if (isFunction(callback))
       callback(numRetriedJobs);
   }, this);
+};
+
+Queue.prototype._retryJob = function (ref, job) {
+  this.addJob(job, ref.remove.bind(ref));
 };
 
 function isFailedJob(object) {
