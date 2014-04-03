@@ -26,11 +26,10 @@ module.exports = Worker;
 function Worker(queue, performJob) {
   EventEmitter.call(this);
 
-  if (isFunction(performJob)) {
-    this.performJob = performJob;
-  } else {
+  if (!isFunction(performJob))
     throw new Error('Worker#performJob must be a function');
-  }
+
+  this.performJob = performJob;
 
   if (!(queue instanceof Queue))
     queue = new Queue(queue);
