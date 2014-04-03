@@ -55,18 +55,20 @@ Worker.prototype._bindToQueue = function (queue) {
  * Starts this worker.
  */
 Worker.prototype.start = function () {
-  if (!this.query) {
-    var pendingJobs = this.queue.pendingJobs;
-    this.query = pendingJobs.startAt().limit(1);
-    this.query.on('child_added', function (snapshot) {
-      // In my tests this event sometimes gets fired more often than
-      // it should. All I can figure is that the Firebase code must
-      // err on the side of emitting extraneous events, which isn't
-      // necessarily bad. We just need to know that.
-      this.nextSnapshot = snapshot;
-      this._tryToWork();
-    }, this);
-  }
+  if (this.query)
+    return
+
+  var query = this.queue.createQuery();
+
+  // This event sometimes gets fired more often than it should. It seems the Firebase
+  // client errs on the side of emitting extraneous events, which isn't necessarily
+  // bad. We just need to know that.
+  query.on('child_added', function (snapshot) {
+    this._nextSnapshot = snapshot;
+    this._tryToWork();
+  }, this);
+
+  this.query = query;
 };
 
 /**
@@ -79,12 +81,13 @@ Worker.prototype.stop = function (callback) {
     this.query = null;
   }
 
-  if (isFunction(callback)) {
-    if (this.isBusy) {
-      this.once('idle', callback);
-    } else {
-      callback();
-    }
+  if (!isFunction(callback))
+    return;
+
+  if (this.isBusy) {
+    this.once('idle', callback);
+  } else {
+    callback();
   }
 };
 
@@ -97,14 +100,15 @@ Worker.prototype.startJob = function (job) {
   // Perform the job. Guard against misbehaving performJob
   // functions that call the callback more than once.
   var alreadyCalled = false;
-  var finishJob = function (error) {
+  var self = this;
+  function finishJob(error) {
     if (alreadyCalled) {
       console.error('Error: The callback given to performJob was called more than once!');
     } else {
       alreadyCalled = true;
-      this.finishJob(job, error);
+      self.finishJob(job, error);
     }
-  }.bind(this);
+  }
 
   try {
     this.performJob(job, finishJob);
@@ -114,7 +118,7 @@ Worker.prototype.startJob = function (job) {
 };
 
 /**
- * Finish up the given job and emit events.
+ * Finishes the given job.
  */
 Worker.prototype.finishJob = function (job, error) {
   if (error) {
@@ -127,16 +131,13 @@ Worker.prototype.finishJob = function (job, error) {
 
   this.emit('finish', job);
 
-  this.getNextJob(job);
+  this._getNextJob(job);
 };
 
-/**
- * Tries to get the next job off the queue and run it.
- */
-Worker.prototype.getNextJob = function (previousJob) {
+Worker.prototype._getNextJob = function (previousJob) {
   this.isBusy = false;
 
-  if (this.nextSnapshot) {
+  if (this._nextSnapshot) {
     this._tryToWork(previousJob);
   } else if (previousJob) {
     this.emit('idle');
@@ -144,39 +145,41 @@ Worker.prototype.getNextJob = function (previousJob) {
 };
 
 Worker.prototype._tryToWork = function (previousJob) {
-  if (this.nextSnapshot && !this.isBusy) {
-    this.isBusy = true;
+  if (!this._nextSnapshot || this.isBusy)
+    return;
 
-    var ref = this.nextSnapshot.ref();
-    this.nextSnapshot = null;
+  this.isBusy = true;
 
-    var nextJob;
-    function claimJob(job) {
-      nextJob = job;
+  var ref = this._nextSnapshot.ref();
+  this._nextSnapshot = null;
 
-      // Remove this job from the queue.
-      return null;
-    }
+  var nextJob;
+  function claimJob(job) {
+    nextJob = job;
 
-    var onComplete = function (error, committed) {
-      if (error) {
-        // We may be in a bad state here. Notify listeners and stop working.
-        this.emit('error', error);
-      } else if (committed && nextJob) {
-        // Ensure the job has a name.
-        if (!nextJob._name)
-          nextJob._name = ref.name();
-
-        // We successfully claimed a job. Start working on it.
-        this.startJob(nextJob);
-      } else {
-        // Another worker claimed the job. Get the next one.
-        this.getNextJob(previousJob);
-      }
-    }.bind(this);
-
-    ref.transaction(claimJob, onComplete, false);
+    // Remove this job from the queue.
+    return null;
   }
+
+  var self = this;
+  function onComplete(error, committed) {
+    if (error) {
+      // We may be in a bad state here. Notify listeners and stop working.
+      self.emit('error', error);
+    } else if (committed && nextJob) {
+      // Ensure the job has a name.
+      if (!nextJob._name)
+        nextJob._name = ref.name();
+
+      // We successfully claimed a job. Start working on it.
+      self.startJob(nextJob);
+    } else {
+      // Another worker claimed the job. Get the next one.
+      self._getNextJob(previousJob);
+    }
+  }
+
+  ref.transaction(claimJob, onComplete, false);
 };
 
 Worker.prototype.toString = function () {

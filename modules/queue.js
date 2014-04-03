@@ -24,6 +24,14 @@ function Queue(ref) {
 }
 
 /**
+ * Creates a Firebase query object that workers can use to pull jobs
+ * off this queue.
+ */
+Queue.prototype.createQuery = function () {
+  return this.pendingJobs.startAt().limit(1);
+};
+
+/**
  * Adds the given job to this queue. Jobs should be "plain" JavaScript
  * objects that contain the data necessary to do some work. The following
  * job property names are reserved:
