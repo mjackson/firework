@@ -1,5 +1,8 @@
 var Firebase = require('firebase');
-module.exports = Queue;
+var isFunction = require('./utils/isFunction');
+var mergeProperties = require('./utils/mergeProperties');
+
+var SERVER_TIMESTAMP = Firebase.ServerValue.TIMESTAMP;
 
 /**
  * A queue is responsible for keeping jobs organized in two separate lists:
@@ -144,7 +147,7 @@ Queue.prototype.getNumStartedJobs = function (callback) {
 function getNumChildren(ref, callback) {
   ref.once('value', function (snapshot) {
     callback(snapshot.numChildren());
-  });
+  }, callback);
 }
 
 Queue.prototype.toString = function () {
@@ -153,40 +156,27 @@ Queue.prototype.toString = function () {
 
 /* worker actions */
 
-var SERVER_TIMESTAMP = Firebase.ServerValue.TIMESTAMP;
-
 Queue.prototype._jobWasStarted = function (job) {
   var properties = mergeProperties({ _startedAt: SERVER_TIMESTAMP }, job);
-  this.startedJobs.child(job._name).update(properties, afterSave);
+  this.startedJobs.child(job._name).update(properties, handleError);
 };
 
 Queue.prototype._jobDidFail = function (job, error) {
   var properties = mergeProperties({ _failedAt: SERVER_TIMESTAMP }, job);
   if (error) properties._error = error.toString();
-  this.startedJobs.child(job._name).update(properties, afterSave);
+  this.startedJobs.child(job._name).update(properties, handleError);
 };
 
 Queue.prototype._jobDidSucceed = function (job) {
   var properties = mergeProperties({ _succeededAt: SERVER_TIMESTAMP }, job);
-  this.startedJobs.child(job._name).update(properties, afterSave);
+  this.startedJobs.child(job._name).update(properties, handleError);
 };
 
-function afterSave(error) {
+function handleError(error) {
   // An error here probably means there is a configuration
   // or permissions error. Fail fast.
   if (error)
     throw error;
 }
 
-function mergeProperties(target, source) {
-  for (var property in source) {
-    if (source.hasOwnProperty(property))
-      target[property] = source[property];
-  }
-
-  return target;
-}
-
-function isFunction(object) {
-  return typeof object === 'function';
-}
+module.exports = Queue;

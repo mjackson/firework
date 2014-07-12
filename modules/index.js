@@ -1,7 +1,7 @@
 exports.version = require('../package').version;
-exports.Queue  = require('./queue');
-exports.Runner = require('./runner');
-exports.Worker = require('./worker');
+exports.Queue  = require('./Queue');
+exports.Runner = require('./Runner');
+exports.Worker = require('./Worker');
 
 exports.createQueue = function (ref) {
   return new exports.Queue(ref);

@@ -1,6 +1,6 @@
 var EventEmitter = require('events').EventEmitter;
-var Queue = require('./queue');
-module.exports = Worker;
+var isFunction = require('./utils/isFunction');
+var Queue = require('./Queue');
 
 /**
  * A worker is responsible for performing jobs, one at a time, as quickly as it can
@@ -185,6 +185,4 @@ Worker.prototype.toString = function () {
   return '<Worker:' + this.queue + '>';
 };
 
-function isFunction(object) {
-  return typeof object === 'function';
-}
+module.exports = Worker;

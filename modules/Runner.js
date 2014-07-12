@@ -1,5 +1,5 @@
-var Worker = require('./worker');
-module.exports = Runner;
+var isFunction = require('./utils/isFunction');
+var Worker = require('./Worker');
 
 /**
  * A runner is responsible for running many workers and restarting them when
@@ -134,6 +134,4 @@ Runner.prototype.toString = function () {
   return '<Runner:' + this.workers.length + ' workers>';
 };
 
-function isFunction(object) {
-  return typeof object === 'function';
-}
+module.exports = Runner;
