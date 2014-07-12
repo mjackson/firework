@@ -5,19 +5,19 @@
  * errors with new ones.
  */
 
-var firework = require('../modules');
-var queue = firework.createQueue('https://firework-tests.firebaseio.com');
+var Firework = require('../modules');
+var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 
 // This function is used to create a new worker.
 function createWorker() {
-  return firework.createWorker(queue, function (job, callback) {
+  return Firework.createWorker(queue, function (job, callback) {
     // Simulate variable lengths of time.
     setTimeout(callback, Math.random() * 2000);
   });
 }
 
-// Use a firework.Runner to manage worker instances.
-var runner = firework.createRunner(createWorker);
+// Use a Firework.Runner to manage worker instances.
+var runner = Firework.createRunner(createWorker);
 
 runner.setNumberOfWorkers(numWorkers);

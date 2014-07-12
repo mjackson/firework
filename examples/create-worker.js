@@ -6,11 +6,11 @@
  *   $ bin/firework examples/create-worker.js -w 5
  */
 
-var firework = require('../modules');
-var queue = firework.createQueue('https://firework-tests.firebaseio.com');
+var Firework = require('../modules');
+var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
 
 module.exports = function () {
-  return firework.createWorker(queue, function (job, callback) {
+  return Firework.createWorker(queue, function (job, callback) {
     console.log(JSON.stringify(job, null, 2));
     setTimeout(callback, 100);
   });

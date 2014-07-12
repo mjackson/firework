@@ -6,15 +6,15 @@
  * run-workers.js example.
  */
 
-var firework = require('../modules');
-var queue = firework.createQueue('https://firework-tests.firebaseio.com');
+var Firework = require('../modules');
+var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 
 for (var i = 0; i < numWorkers; ++i) {
   (function (n) {
 
     // Create a new worker.
-    var worker = firework.createWorker(queue, function (job, callback) {
+    var worker = Firework.createWorker(queue, function (job, callback) {
       // Simulate variable lengths of time.
       setTimeout(callback, Math.random() * 2000);
     });

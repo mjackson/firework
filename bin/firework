@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var firework = require('../modules');
+var Firework = require('../modules');
 
 var argv = require('optimist')
   .usage([
@@ -8,7 +8,7 @@ var argv = require('optimist')
     'Usage: firework create-worker.js [ -w numWorkers ]',
     '',
     '  The create-worker.js module should export a single function',
-    '  that returns a new firework.Worker object when invoked. This',
+    '  that returns a new Firework.Worker object when invoked. This',
     '  function is used to create new workers as needed.'
   ].join('\n'))
   .demand(1)
@@ -17,7 +17,7 @@ var argv = require('optimist')
 
 var workerFile = require('path').join(process.cwd(), argv._[0]);
 var createWorker = require(workerFile);
-var runner = new firework.Runner(createWorker);
+var runner = new Firework.Runner(createWorker);
 
 runner.setNumberOfWorkers(argv.w);
 

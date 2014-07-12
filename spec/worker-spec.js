@@ -1,5 +1,5 @@
 require('./helper');
-var Worker = firework.Worker;
+var Worker = Firework.Worker;
 
 describe('A Worker', function () {
 

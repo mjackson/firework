@@ -23,8 +23,7 @@ jobs.push().setWithPriority({ less: 'important' }, 100);
 Firework also provides an API for creating jobs from within your server process. A `Firework.Queue` (see **Processing Jobs** below) has a `push` method for this purpose.
 
 ```js
-var firework = require('firework');
-var queue = new firework.Queue('https://my-firebase.firebaseio.com/myQueue');
+var queue = require('firework').createQueue('https://my-firebase.firebaseio.com/myQueue');
 queue.push({ my: 'job' });
 ```
 
@@ -49,11 +48,11 @@ The `-w` argument specifies the number of workers to use. When a worker has an u
 The `create-worker.js` module that you pass to `firework` should export a function that is used to create new workers. To process jobs from the queue we pushed onto in the **Creating Jobs** section above, our `create-worker.js` file could look something like this:
 
 ```js
-var firework = require('firework');
-var queue = new firework.Queue('https://my-firebase.firebaseio.com/myQueue');
+var Firework = require('firework');
+var queue = Firework.createQueue('https://my-firebase.firebaseio.com/myQueue');
 
 module.exports = function () {
-  return new firework.Worker(queue, function (job, callback) {
+  return Firework.createWorker(queue, function (job, callback) {
     // process the given job.
 
     // call the callback when you're done, optionally with

@@ -1,6 +1,6 @@
 assert = require('assert');
 Firebase = require('firebase');
-firework = require('../modules');
+Firework = require('../modules');
 
 BASE_REF = new Firebase('https://firework-tests.firebaseio.com');
 

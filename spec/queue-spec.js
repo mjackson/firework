@@ -1,5 +1,5 @@
 require('./helper');
-var Queue = firework.Queue;
+var Queue = Firework.Queue;
 
 describe('A Queue', function () {
 
