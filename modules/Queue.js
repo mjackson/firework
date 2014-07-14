@@ -1,4 +1,5 @@
 var Firebase = require('firebase');
+var isFirebase = require('./utils/isFirebase');
 var isFunction = require('./utils/isFunction');
 var mergeProperties = require('./utils/mergeProperties');
 
@@ -18,7 +19,7 @@ function Queue(ref) {
   if (typeof ref === 'string')
     ref = new Firebase(ref);
 
-  if (!(ref instanceof Firebase))
+  if (!isFirebase(ref))
     throw new Error('Invalid Firebase location reference: ' + ref);
 
   this.ref = ref;
