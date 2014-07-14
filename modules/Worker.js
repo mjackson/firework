@@ -1,3 +1,4 @@
+var d = require('d');
 var EventEmitter = require('events').EventEmitter;
 var isFunction = require('./utils/isFunction');
 var Queue = require('./Queue');
@@ -39,150 +40,151 @@ function Worker(queue, performJob) {
   this.successCount = 0;
   this.isBusy = false;
 
-  this._bindToQueue(this.queue);
+  queue.setupWorker(this);
 }
 
 require('util').inherits(Worker, EventEmitter);
 
-Worker.prototype._bindToQueue = function (queue) {
-  this.on('start', queue._jobWasStarted.bind(queue));
-  this.on('failure', queue._jobDidFail.bind(queue));
-  this.on('success', queue._jobDidSucceed.bind(queue));
-};
+Object.defineProperties(Worker.prototype, {
 
-/**
- * Starts this worker.
- */
-Worker.prototype.start = function () {
-  if (this._query)
-    return;
+  /**
+   * Starts this worker.
+   */
+  start: d(function () {
+    if (this._query)
+      return;
 
-  var query = this.queue.createQuery();
+    var query = this.queue.createQuery();
 
-  // The "child_added" event sometimes gets fired more often than it should. It
-  // seems the Firebase client errs on the side of emitting extraneous events,
-  // which isn't necessarily bad. We just need to know that.
-  query.on('child_added', function (snapshot) {
-    this._nextSnapshot = snapshot;
-    this._tryToWork();
-  }, this);
+    // The "child_added" event sometimes gets fired more often than it should. It
+    // seems the Firebase client errs on the side of emitting extraneous events,
+    // which isn't necessarily bad. We just need to know that.
+    query.on('child_added', function (snapshot) {
+      this._nextSnapshot = snapshot;
+      this._tryToWork();
+    }, this);
 
-  this._query = query;
-};
+    this._query = query;
+  }),
 
-/**
- * Stops this worker and calls the given callback after finishing
- * any work that is currently in progress.
- */
-Worker.prototype.stop = function (callback) {
-  if (this._query) {
-    this._query.off();
-    this._query = null;
-  }
-
-  if (!isFunction(callback))
-    return;
-
-  if (this.isBusy) {
-    this.once('idle', callback);
-  } else {
-    callback();
-  }
-};
-
-/**
- * Starts working on the given job.
- */
-Worker.prototype.startJob = function (job) {
-  this.emit('start', job);
-
-  // Perform the job. Guard against misbehaving performJob
-  // functions that call the callback more than once.
-  var alreadyCalled = false;
-  var self = this;
-  function finishJob(error) {
-    if (alreadyCalled) {
-      console.error('Error: The callback given to performJob was called more than once!');
-    } else {
-      alreadyCalled = true;
-      self.finishJob(job, error);
+  /**
+   * Stops this worker and calls the given callback after finishing
+   * any work that is currently in progress.
+   */
+  stop: d(function (callback) {
+    if (this._query) {
+      this._query.off();
+      this._query = null;
     }
-  }
 
-  try {
-    this.performJob(job, finishJob);
-  } catch (error) {
-    finishJob(error);
-  }
-};
+    if (!isFunction(callback))
+      return;
 
-/**
- * Finishes the given job.
- */
-Worker.prototype.finishJob = function (job, error) {
-  if (error) {
-    this.failureCount += 1;
-    this.emit('failure', job, error);
-  } else {
-    this.successCount += 1;
-    this.emit('success', job);
-  }
+    if (this.isBusy) {
+      this.once('idle', callback);
+    } else {
+      callback();
+    }
+  }),
 
-  this.emit('finish', job);
+  /**
+   * Starts working on the given job.
+   */
+  startJob: d(function (job) {
+    this.emit('start', job);
 
-  this._getNextJob(job);
-};
+    // Perform the job. Guard against misbehaving performJob
+    // functions that call the callback more than once.
+    var alreadyCalled = false;
+    var self = this;
+    function finishJob(error) {
+      if (alreadyCalled) {
+        console.error('Error: The callback given to performJob was called more than once!');
+      } else {
+        alreadyCalled = true;
+        self.finishJob(job, error);
+      }
+    }
 
-Worker.prototype._getNextJob = function (previousJob) {
-  this.isBusy = false;
+    try {
+      this.performJob(job, finishJob);
+    } catch (error) {
+      finishJob(error);
+    }
+  }),
 
-  if (this._nextSnapshot) {
-    this._tryToWork(previousJob);
-  } else if (previousJob) {
-    this.emit('idle');
-  }
-};
-
-Worker.prototype._tryToWork = function (previousJob) {
-  if (!this._nextSnapshot || this.isBusy)
-    return;
-
-  this.isBusy = true;
-
-  var ref = this._nextSnapshot.ref();
-  this._nextSnapshot = null;
-
-  var nextJob;
-  function claimJob(job) {
-    nextJob = job;
-
-    // Remove this job from the queue.
-    return null;
-  }
-
-  var self = this;
-  function onComplete(error, committed) {
+  /**
+   * Finishes the given job.
+   */
+  finishJob: d(function (job, error) {
     if (error) {
-      // We may be in a bad state here. Notify listeners and stop working.
-      self.emit('error', error);
-    } else if (committed && nextJob) {
-      // Ensure the job has a name.
-      if (!nextJob._name)
-        nextJob._name = ref.name();
-
-      // We successfully claimed a job. Start working on it.
-      self.startJob(nextJob);
+      this.failureCount += 1;
+      this.emit('failure', job, error);
     } else {
-      // Another worker claimed the job. Get the next one.
-      self._getNextJob(previousJob);
+      this.successCount += 1;
+      this.emit('success', job);
     }
-  }
 
-  ref.transaction(claimJob, onComplete, false);
-};
+    this.emit('finish', job);
 
-Worker.prototype.toString = function () {
-  return '<Worker:' + this.queue + '>';
-};
+    this._getNextJob(job);
+  }),
+
+  _getNextJob: d(function (previousJob) {
+    this.isBusy = false;
+
+    if (this._nextSnapshot) {
+      this._tryToWork(previousJob);
+    } else if (previousJob) {
+      this.emit('idle');
+    }
+  }),
+
+  _tryToWork: d(function (previousJob) {
+    if (!this._nextSnapshot || this.isBusy)
+      return;
+
+    this.isBusy = true;
+
+    var ref = this._nextSnapshot.ref();
+    this._nextSnapshot = null;
+
+    var nextJob;
+    function claimJob(job) {
+      nextJob = job;
+
+      // Remove this job from the queue.
+      return null;
+    }
+
+    var self = this;
+    function onComplete(error, committed) {
+      if (error) {
+        // We may be in a bad state here. Notify listeners and stop working.
+        self.emit('error', error);
+      } else if (committed && nextJob) {
+        // Ensure the job has a name.
+        if (!nextJob._name)
+          nextJob._name = ref.name();
+
+        // We successfully claimed a job. Start working on it.
+        self.startJob(nextJob);
+      } else {
+        // Another worker claimed the job. Get the next one.
+        self._getNextJob(previousJob);
+      }
+    }
+
+    ref.transaction(claimJob, onComplete, false);
+  }),
+
+  /**
+   * Returns a string representation of this Worker.
+   */
+  toString: d(function () {
+    return '<Worker:' + this.queue + '>';
+  })
+
+});
 
 module.exports = Worker;

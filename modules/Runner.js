@@ -1,3 +1,4 @@
+var d = require('d');
 var isFunction = require('./utils/isFunction');
 var Worker = require('./Worker');
 
@@ -15,123 +16,130 @@ function Runner(createWorker) {
   this.workers = [];
 }
 
-/**
- * Sets the number of workers for this runner and calls the given callback
- * when the operation is complete. When removing workers, the callback receives
- * an array of the workers being removed after they have all finished up their
- * current job. When adding workers, the callback receives an array of the
- * new workers.
- */
-Runner.prototype.setNumberOfWorkers = function (numWorkers, callback) {
-  numWorkers = Math.max(0, numWorkers);
+Object.defineProperties(Runner.prototype, {
 
-  var workers = this.workers;
-  var change = numWorkers - workers.length;
+  /**
+   * Sets the number of workers for this runner and calls the given callback
+   * when the operation is complete. When removing workers, the callback receives
+   * an array of the workers being removed after they have all finished up their
+   * current job. When adding workers, the callback receives an array of the
+   * new workers.
+   */
+  setNumberOfWorkers: d(function (numWorkers, callback) {
+    numWorkers = Math.max(0, numWorkers);
 
-  if (change < 0) {
-    // Remove oldest workers first.
-    var removedWorkers = workers.splice(0, Math.abs(change));
+    var workers = this.workers;
+    var change = numWorkers - workers.length;
 
-    var numStoppedWorkers = 0;
-    function workerStopped() {
-      if (++numStoppedWorkers === removedWorkers.length && isFunction(callback))
-        callback(removedWorkers);
+    if (change < 0) {
+      // Remove oldest workers first.
+      var removedWorkers = workers.splice(0, Math.abs(change));
+
+      var numStoppedWorkers = 0;
+      function workerStopped() {
+        if (++numStoppedWorkers === removedWorkers.length && isFunction(callback))
+          callback(removedWorkers);
+      }
+
+      removedWorkers.forEach(function (worker) {
+        worker.stop(workerStopped);
+      });
+
+      return;
     }
 
-    removedWorkers.forEach(function (worker) {
-      worker.stop(workerStopped);
+    var newWorkers = [], worker;
+    for (var i = 0; i < change; ++i) {
+      newWorkers.push(worker = this.createWorker(++this.workerId));
+      worker.start();
+    }
+
+    workers.push.apply(workers, newWorkers);
+
+    if (isFunction(callback))
+      callback(newWorkers);
+  }),
+
+  /**
+   * Adds the given number of workers to this runner.
+   */
+  incrementWorkers: d(function (howMany, callback) {
+    if (isFunction(howMany)) {
+      callback = howMany;
+      howMany = 1;
+    }
+
+    this.setNumberOfWorkers(this.workers.length + howMany, callback);
+  }),
+
+  /**
+   * Removes the given number of workers from this runner.
+   */
+  decrementWorkers: d(function (howMany, callback) {
+    if (isFunction(howMany)) {
+      callback = howMany;
+      howMany = 1;
+    }
+
+    this.setNumberOfWorkers(this.workers.length - howMany, callback);
+  }),
+
+  /**
+   * Alias for setNumberOfWorkers(0).
+   */
+  stopAllWorkers: d(function (callback) {
+    this.setNumberOfWorkers(0, callback);
+  }),
+
+  /**
+   * Creates a new worker that is bound to this runner.
+   */
+  createWorker: d(function (id) {
+    var worker = this._createWorker(id);
+
+    if (!(worker instanceof Worker))
+      throw new Error('Runner#createWorker must return a Worker');
+
+    worker.on('error', this.replaceWorker.bind(this, worker));
+
+    worker.on('start', function (job) {
+      console.log('worker ' + id + ' started job ' + job._name);
     });
 
-    return;
-  }
+    worker.on('failure', function (job, error) {
+      console.log('job ' + job._name + ' failed: ' + error.toString());
+    });
 
-  var newWorkers = [], worker;
-  for (var i = 0; i < change; ++i) {
-    newWorkers.push(worker = this.createWorker(++this.workerId));
-    worker.start();
-  }
+    worker.on('idle', function () {
+      console.log('worker ' + id + ' is idle');
+    });
 
-  workers.push.apply(workers, newWorkers);
+    return worker;
+  }),
 
-  if (isFunction(callback))
-    callback(newWorkers);
-};
+  /**
+   * Replaces the given worker with a new one.
+   */
+  replaceWorker: d(function (worker) {
+    var workers = this.workers;
+    var index = workers.indexOf(worker);
 
-/**
- * Adds the given number of workers to this runner.
- */
-Runner.prototype.incrementWorkers = function (howMany, callback) {
-  if (isFunction(howMany)) {
-    callback = howMany;
-    howMany = 1;
-  }
+    if (index === -1)
+      return;
 
-  this.setNumberOfWorkers(this.workers.length + howMany, callback);
-};
+    // Remove this worker and add a new one. When a worker emits
+    // "error" it immediately stops working so no need to stop it.
+    workers.splice(index, 1);
+    this.incrementWorkers(1);
+  }),
 
-/**
- * Removes the given number of workers from this runner.
- */
-Runner.prototype.decrementWorkers = function (howMany, callback) {
-  if (isFunction(howMany)) {
-    callback = howMany;
-    howMany = 1;
-  }
+  /**
+   * Returns a string representation of this Runner.
+   */
+  toString: d(function () {
+    return '<Runner:' + this.workers.length + ' workers>';
+  })
 
-  this.setNumberOfWorkers(this.workers.length - howMany, callback);
-};
-
-/**
- * Alias for setNumberOfWorkers(0).
- */
-Runner.prototype.stopAllWorkers = function (callback) {
-  this.setNumberOfWorkers(0, callback);
-};
-
-/**
- * Creates a new worker that is bound to this runner.
- */
-Runner.prototype.createWorker = function (id) {
-  var worker = this._createWorker(id);
-
-  if (!(worker instanceof Worker))
-    throw new Error('Runner#createWorker must return a Worker');
-
-  worker.on('error', this.replaceWorker.bind(this, worker));
-
-  worker.on('start', function (job) {
-    console.log('worker ' + id + ' started job ' + job._name);
-  });
-
-  worker.on('failure', function (job, error) {
-    console.log('job ' + job._name + ' failed: ' + error.toString());
-  });
-
-  worker.on('idle', function () {
-    console.log('worker ' + id + ' is idle');
-  });
-
-  return worker;
-};
-
-/**
- * Replaces the given worker with a new one.
- */
-Runner.prototype.replaceWorker = function (worker) {
-  var workers = this.workers;
-  var index = workers.indexOf(worker);
-
-  if (index === -1)
-    return;
-
-  // Remove this worker and add a new one. When a worker emits
-  // "error" it immediately stops working so no need to stop it.
-  workers.splice(index, 1);
-  this.incrementWorkers(1);
-};
-
-Runner.prototype.toString = function () {
-  return '<Runner:' + this.workers.length + ' workers>';
-};
+});
 
 module.exports = Runner;
