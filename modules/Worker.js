@@ -43,9 +43,9 @@ function Worker(queue, performJob) {
   queue.setupWorker(this);
 }
 
-require('util').inherits(Worker, EventEmitter);
+Worker.prototype = Object.create(EventEmitter.prototype, {
 
-Object.defineProperties(Worker.prototype, {
+  constructor: d(Worker),
 
   /**
    * Starts this worker.
