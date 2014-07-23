@@ -1,4 +1,6 @@
-Firework is a distributed, fault-tolerant work queue for [Firebase](https://www.firebase.com/).
+[![build status](https://secure.travis-ci.org/mjackson/firework.png)](http://travis-ci.org/mjackson/firework)
+
+[Firework](https://github.com/mjackson/firework) is a distributed, fault-tolerant work queue for [Firebase](https://www.firebase.com/).
 
 ### Creating Jobs
 
