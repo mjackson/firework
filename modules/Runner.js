@@ -12,7 +12,7 @@ function Runner(createWorker) {
     throw new Error('Runner#createWorker must be a function');
 
   this._createWorker = createWorker;
-  this.workerId = 0;
+  this.workerID = 0;
   this.workers = [];
 }
 
@@ -50,7 +50,7 @@ Object.defineProperties(Runner.prototype, {
 
     var newWorkers = [], worker;
     for (var i = 0; i < change; ++i) {
-      newWorkers.push(worker = this.createWorker(++this.workerId));
+      newWorkers.push(worker = this.createWorker(++this.workerID));
       worker.start();
     }
 
