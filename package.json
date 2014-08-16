@@ -1,6 +1,6 @@
 {
   "name": "firework",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "A distributed, fault-tolerant work queue for Firebase",
   "main": "modules/index.js",
   "bin": "./bin/firework",
