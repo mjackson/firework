@@ -1,5 +1,10 @@
 assert = require('assert');
-Firebase = require('firebase');
+
+if (typeof Firebase === 'undefined') {
+  var moduleID = 'firebase'; // Stop Browserify.
+  Firebase = require(moduleID);
+}
+
 Firework = require('../modules');
 
 BASE_REF = new Firebase('https://firework-tests.firebaseio.com');

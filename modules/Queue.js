@@ -1,9 +1,13 @@
 var d = require('d');
-var Firebase = require('firebase');
 var isFirebase = require('./utils/isFirebase');
 var isFunction = require('./utils/isFunction');
 var getNumChildren = require('./utils/getNumChildren');
 var mergeProperties = require('./utils/mergeProperties');
+
+if (typeof Firebase === 'undefined') {
+  var moduleID = 'firebase'; // Stop Browserify.
+  Firebase = require(moduleID);
+}
 
 var SERVER_TIMESTAMP = Firebase.ServerValue.TIMESTAMP;
 
@@ -146,22 +150,22 @@ Object.defineProperties(Queue.prototype, {
     var self = this;
 
     worker.on('start', function (job) {
-      var properties = mergeProperties({ _startedAt: SERVER_TIMESTAMP }, job);
-      self.startedJobs.child(job._name).update(properties, handleError);
+      job = mergeProperties({ _startedAt: SERVER_TIMESTAMP }, job);
+      self.startedJobs.child(job._name).update(job, handleError);
     });
 
     worker.on('failure', function (job, error) {
-      var properties = mergeProperties({ _failedAt: SERVER_TIMESTAMP }, job);
+      job = mergeProperties({ _failedAt: SERVER_TIMESTAMP }, job);
 
       if (error)
-        properties._error = error.toString();
+        job._error = error.toString();
 
-      self.startedJobs.child(job._name).update(properties, handleError);
+      self.startedJobs.child(job._name).update(job, handleError);
     });
 
     worker.on('success', function (job) {
-      var properties = mergeProperties({ _succeededAt: SERVER_TIMESTAMP }, job);
-      self.startedJobs.child(job._name).update(properties, handleError);
+      job = mergeProperties({ _succeededAt: SERVER_TIMESTAMP }, job);
+      self.startedJobs.child(job._name).update(job, handleError);
     });
   }),
 
