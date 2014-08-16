@@ -82,14 +82,19 @@ You can install Firework using [npm](https://www.npmjs.org/):
 $ npm install firework
 ```
 
-### Tests
+### Specs
 
-To run the tests, do:
+To run the specs in node:
 
-```sh
-$ npm install
-$ mocha
-```
+    $ npm install
+    $ ./scripts/run-specs
+
+To run the specs in a browser, first run:
+
+    $ npm install
+    $ ./scripts/serve-specs
+
+Then open [http://localhost:8080/](http://localhost:8080/) in a browser.
 
 ### License
 
