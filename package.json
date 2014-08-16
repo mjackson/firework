@@ -5,8 +5,8 @@
   "main": "modules/index.js",
   "bin": "./bin/firework",
   "dependencies": {
-    "d": "^0.1.1",
-    "firebase": "^1.0.17",
+    "d": "0.1.1",
+    "firebase": "1.0.19",
     "optimist": "~0.6.0"
   },
   "devDependencies": {
