@@ -7,7 +7,7 @@
  */
 
 var Firework = require('../modules');
-var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
+var queue = Firework.createQueue('https://firework-tests.firebaseio-demo.com');
 
 module.exports = function () {
   return Firework.createWorker(queue, function (job, callback) {

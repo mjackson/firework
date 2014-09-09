@@ -147,6 +147,7 @@ Worker.prototype = Object.create(EventEmitter.prototype, {
     this.isBusy = true;
 
     var ref = this._nextSnapshot.ref();
+    var priority = this._nextSnapshot.getPriority();
     this._nextSnapshot = null;
 
     var nextJob;
@@ -166,6 +167,7 @@ Worker.prototype = Object.create(EventEmitter.prototype, {
         // Ensure the job has a name.
         if (!nextJob._name)
           nextJob._name = ref.name();
+          nextJob._priority = priority;
 
         // We successfully claimed a job. Start working on it.
         self.startJob(nextJob);

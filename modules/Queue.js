@@ -31,6 +31,9 @@ function Queue(ref) {
   this.ref = ref;
   this.pendingJobs = ref.child('pendingJobs');
   this.startedJobs = ref.child('startedJobs');
+  this.runningJobs = ref.child('startedJobs').equalTo('running');
+  this.failedJobs  = ref.child('startedJobs').equalTo('failed');
+  this.completedJobs = ref.child('startedJobs').equalTo('completed');
 }
 
 Object.defineProperties(Queue.prototype, {
@@ -63,9 +66,9 @@ Object.defineProperties(Queue.prototype, {
   addJob: d(function (job, callback) {
     var pendingJobs = this.pendingJobs;
     var ref = job._name ? pendingJobs.child(job._name) : pendingJobs.push();
-
-    ref.set(job, callback);
-
+    var priority = job._priority || null;
+    console.log('addJob', ref.toString());
+    ref.setWithPriority(job, priority, callback);
     return ref;
   }),
 
@@ -91,6 +94,42 @@ Object.defineProperties(Queue.prototype, {
   }),
 
   /**
+  * Removes all jobs that are running from the queue.
+  */
+  removeAllRunningJobs: d(function(callback) {
+    this.runningJobs.once('value', function(snap) {
+      snap.forEach(function(child) {
+        child.ref().remove()
+      })
+      if (isFunction(callback)) { callback() }
+    })
+  }),
+
+  /**
+  * Removes all failed jobs from the queue.
+  */
+  removeAllFailedJobs: d(function(callback) {
+    this.failedJobs.once('value', function(snap) {
+      snap.forEach(function(child) {
+        child.ref().remove()
+      })
+      if (isFunction(callback)) { callback() }
+    })
+  }),
+
+  /**
+  * Removes all completed jobs from the queue.
+  */
+  removeAllCompletedJobs: d(function(callback) {
+    this.completedJobs.once('value', function(snap) {
+      snap.forEach(function(child) {
+        child.ref().remove()
+      })
+      if (isFunction(callback)) { callback() }
+    })
+  }),
+
+  /**
    * Moves failed jobs from the started list back to pending, up to the
    * maximum number given in the maxJobs argument (defaults to all failed
    * jobs). Calls the given callback when it is finished with the number of
@@ -106,7 +145,7 @@ Object.defineProperties(Queue.prototype, {
     var numRetriedJobs = 0;
 
     var self = this;
-    this.startedJobs.once('value', function (snapshot) {
+    this.failedJobs.once('value', function (snapshot) {
       var job;
       snapshot.forEach(function (child) {
         job = child.val();
@@ -126,7 +165,9 @@ Object.defineProperties(Queue.prototype, {
   }),
 
   _retryJob: d(function (ref, job) {
-    this.addJob(job, ref.remove.bind(ref));
+    this.addJob(job, function(error) {
+      if (!error) { ref.remove(); }
+    })
   }),
 
   /**
@@ -144,6 +185,27 @@ Object.defineProperties(Queue.prototype, {
   }),
 
   /**
+  * Calls the given callback with the number of jobs that are running.
+  */
+  getNumRunningJobs: d(function (callback) {
+    getNumChildren(this.runningJobs, callback);
+  }),
+
+  /**
+  * Calls the given callback with the number of jobs that are failed.
+  */
+  getNumFailedJobs: d(function (callback) {
+    getNumChildren(this.failedJobs, callback);
+  }),
+
+  /**
+  * Calls the given callback with the number of jobs that are completed.
+  */
+  getNumCompletedJobs: d(function (callback) {
+    getNumChildren(this.completedJobs, callback);
+  }),
+
+  /**
    * Used internally to setup the given worker object to report to this queue.
    */
   setupWorker: d(function (worker) {
@@ -151,21 +213,18 @@ Object.defineProperties(Queue.prototype, {
 
     worker.on('start', function (job) {
       job = mergeProperties({ _startedAt: SERVER_TIMESTAMP }, job);
-      self.startedJobs.child(job._name).update(job, handleError);
+      self.startedJobs.child(job._name).setWithPriority(job, 'running', handleError);
     });
 
     worker.on('failure', function (job, error) {
       job = mergeProperties({ _failedAt: SERVER_TIMESTAMP }, job);
-
-      if (error)
-        job._error = error.toString();
-
-      self.startedJobs.child(job._name).update(job, handleError);
+      job._error = error.toString() || null;
+      self.startedJobs.child(job._name).setWithPriority(job, 'failed', handleError);
     });
 
     worker.on('success', function (job) {
       job = mergeProperties({ _succeededAt: SERVER_TIMESTAMP }, job);
-      self.startedJobs.child(job._name).update(job, handleError);
+      self.startedJobs.child(job._name).setWithPriority(job, 'completed', handleError);
     });
   }),
 

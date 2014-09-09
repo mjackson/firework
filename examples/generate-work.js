@@ -4,8 +4,8 @@
  */
 
 var Firework = require('../modules');
-var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
-var maxCount = 30;
+var queue = Firework.createQueue('https://firework-tests.firebaseio-demo.com');
+var maxCount = 10;
 var interval = 10;
 
 // Clear all pending/started jobs from the queue.
@@ -20,13 +20,14 @@ var timer = setInterval(function () {
   // Push a new job onto the queue.
   queue.push({
     count: jobCount,
-    time: (new Date).getTime()
+    time: (new Date).getTime(),
+    name: 'monkey' + jobCount
   }, function () {
     console.log('generated job ' + jobCount);
 
     if (++numGeneratedJobs === maxCount)
       process.exit();
-  });
+  }).setPriority(jobCount);
 
   if (count === maxCount)
     clearInterval(timer);

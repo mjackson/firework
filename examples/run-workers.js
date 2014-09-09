@@ -6,14 +6,22 @@
  */
 
 var Firework = require('../modules');
-var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
-var numWorkers = 5;
+var queue = Firework.createQueue('https://firework-tests.firebaseio-demo.com');
+var numWorkers = 1;
 
 // This function is used to create a new worker.
 function createWorker() {
   return Firework.createWorker(queue, function (job, callback) {
     // Simulate variable lengths of time.
-    setTimeout(callback, Math.random() * 2000);
+    var random = parseInt(Math.random() * 1000)
+    console.log('waiting:', random)
+    var error
+    setTimeout(function() {
+      if (random.toString().match(/4/)) {
+        error = 'BAD ' + random
+      }
+      callback(error)
+    }, random);
   });
 }
 
