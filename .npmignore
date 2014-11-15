@@ -1,2 +1,3 @@
+.travis.yml
 examples
-specs
+modules/**/__tests__

@@ -1,5 +1,6 @@
-require('./helper');
-var Queue = Firework.Queue;
+var expect = require('expect');
+var BASE_REF = require('./BASE_REF');
+var Queue = require('../Queue');
 
 describe('A Queue', function () {
 
@@ -17,14 +18,14 @@ describe('A Queue', function () {
 
     it('has one pending job', function (done) {
       queue.getNumPendingJobs(function (n) {
-        assert.equal(n, 1);
+        expect(n).toEqual(1);
         done();
       });
     });
 
     it('has no started jobs', function (done) {
       queue.getNumStartedJobs(function (n) {
-        assert.equal(n, 0);
+        expect(n).toEqual(0);
         done();
       });
     });

@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "browserify": "4.x",
+    "expect": "^1.0.2",
     "http-server": "^0.6.1",
     "mocha": "~1.14.0"
   },

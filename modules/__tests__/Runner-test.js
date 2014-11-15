@@ -1,6 +1,8 @@
-require('./helper');
-var Runner = Firework.Runner;
-var Worker = Firework.Worker;
+var assert = require('assert');
+var expect = require('expect');
+var BASE_REF = require('./BASE_REF');
+var Runner = require('../Runner');
+var Worker = require('../Worker');
 
 describe('A Runner', function () {
 
@@ -40,7 +42,7 @@ describe('A Runner', function () {
       });
 
       it('replaces that worker with a new one', function () {
-        assert.equal(runner.workers.length, 1);
+        expect(runner.workers.length).toEqual(1);
         assert(runner.workers[0] !== worker);
       });
     });

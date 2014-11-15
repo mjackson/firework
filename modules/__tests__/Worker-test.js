@@ -1,5 +1,6 @@
-require('./helper');
-var Worker = Firework.Worker;
+var assert = require('assert');
+var BASE_REF = require('./BASE_REF');
+var Worker = require('../Worker');
 
 describe('A Worker', function () {
 
