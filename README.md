@@ -31,7 +31,7 @@ queue.push({ my: 'job' });
 
 Important: The following job property names are reserved:
 
-  * _name
+  * _key
   * _startedAt
   * _succeededAt
   * _failedAt

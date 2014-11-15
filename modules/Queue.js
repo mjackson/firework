@@ -40,7 +40,7 @@ Object.defineProperties(Queue.prototype, {
    * off this queue.
    */
   createQuery: d(function () {
-    return this.pendingJobs.startAt().limit(1);
+    return this.pendingJobs.limitToFirst(1);
   }),
 
   /**
@@ -48,21 +48,21 @@ Object.defineProperties(Queue.prototype, {
    * objects that contain the data necessary to do some work. The following
    * job property names are reserved:
    *
-   *   _name
+   *   _key
    *   _startedAt
    *   _succeededAt
    *   _failedAt
    *   _error
    *
-   * The _name property is really only semi-reserved. If given, it will be
-   * used as the name for the new child reference. Thus, it must be a valid
-   * Firebase location reference name.
+   * The _key property is really only semi-reserved. If given, it will be
+   * used as the key for the new child reference. Thus, it must be a valid
+   * Firebase location key.
    *
    * Returns the newly created child location reference.
    */
   addJob: d(function (job, callback) {
     var pendingJobs = this.pendingJobs;
-    var ref = job._name ? pendingJobs.child(job._name) : pendingJobs.push();
+    var ref = job._key ? pendingJobs.child(job._key) : pendingJobs.push();
 
     ref.set(job, callback);
 
@@ -151,7 +151,7 @@ Object.defineProperties(Queue.prototype, {
 
     worker.on('start', function (job) {
       job = mergeProperties({ _startedAt: SERVER_TIMESTAMP }, job);
-      self.startedJobs.child(job._name).update(job, handleError);
+      self.startedJobs.child(job._key).update(job, handleError);
     });
 
     worker.on('failure', function (job, error) {
@@ -160,12 +160,12 @@ Object.defineProperties(Queue.prototype, {
       if (error)
         job._error = error.toString();
 
-      self.startedJobs.child(job._name).update(job, handleError);
+      self.startedJobs.child(job._key).update(job, handleError);
     });
 
     worker.on('success', function (job) {
       job = mergeProperties({ _succeededAt: SERVER_TIMESTAMP }, job);
-      self.startedJobs.child(job._name).update(job, handleError);
+      self.startedJobs.child(job._key).update(job, handleError);
     });
   }),
 

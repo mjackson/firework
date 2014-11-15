@@ -163,9 +163,9 @@ Worker.prototype = Object.create(EventEmitter.prototype, {
         // We may be in a bad state here. Notify listeners and stop working.
         self.emit('error', error);
       } else if (committed && nextJob) {
-        // Ensure the job has a name.
-        if (!nextJob._name)
-          nextJob._name = ref.name();
+        // Ensure the job has a key.
+        if (!nextJob._key)
+          nextJob._key = ref.key();
 
         // We successfully claimed a job. Start working on it.
         self.startJob(nextJob);

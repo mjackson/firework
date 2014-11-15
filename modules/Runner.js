@@ -103,11 +103,11 @@ Object.defineProperties(Runner.prototype, {
     worker.on('error', this.replaceWorker.bind(this, worker));
 
     worker.on('start', function (job) {
-      console.log('worker ' + id + ' started job ' + job._name);
+      console.log('worker ' + id + ' started job ' + job._key);
     });
 
     worker.on('failure', function (job, error) {
-      console.log('job ' + job._name + ' failed: ' + error.toString());
+      console.log('job ' + job._key + ' failed: ' + error.toString());
     });
 
     worker.on('idle', function () {
