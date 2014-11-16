@@ -16,7 +16,9 @@
     "mocha": "~1.14.0"
   },
   "scripts": {
-    "test": "scripts/run-specs"
+    "test": "mocha \"modules/**/__tests__/**/*-test.js\"",
+    "bundle-tests": "browserify modules/__tests__/browser/tests.js --detect-globals false --debug > modules/__tests__/browser/tests-bundle.js",
+    "serve-tests": "http-server modules/__tests__/browser"
   },
   "repository": {
     "type": "git",
