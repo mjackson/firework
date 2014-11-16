@@ -76,23 +76,26 @@ queue.retryFailedJobs();
 
 ### Installation
 
-You can install Firework using [npm](https://www.npmjs.org/):
+Using [npm](https://www.npmjs.org/):
 
-```sh
-$ npm install firework
-```
+    $ npm install firework
 
-### Specs
+### Issues
 
-To run the specs in node:
+Please file issues on the [issue tracker on GitHub](https://github.com/mjackson/firework/issues).
 
-    $ npm install
-    $ ./scripts/run-specs
+### Tests
 
-To run the specs in a browser, first run:
+To run the tests in node:
 
     $ npm install
-    $ ./scripts/serve-specs
+    $ npm test
+
+To run the tests in a browser, first run:
+
+    $ npm install
+    $ npm run bundle-tests
+    $ npm run serve-tests
 
 Then open [http://localhost:8080/](http://localhost:8080/) in a browser.
 
