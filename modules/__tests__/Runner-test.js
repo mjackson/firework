@@ -33,7 +33,7 @@ describe('A Runner', function () {
     });
 
     it('has one worker', function () {
-      assert.equal(runner.workers.length, 1);
+      expect(runner.workers.length).toEqual(1);
     });
 
     describe('when the worker has an error', function () {
