@@ -34,15 +34,13 @@ Object.defineProperties(Runner.prototype, {
     if (change < 0) {
       // Remove oldest workers first.
       var removedWorkers = workers.splice(0, Math.abs(change));
-
       var numStoppedWorkers = 0;
-      function workerStopped() {
-        if (++numStoppedWorkers === removedWorkers.length && isFunction(callback))
-          callback(removedWorkers);
-      }
 
       removedWorkers.forEach(function (worker) {
-        worker.stop(workerStopped);
+        worker.stop(function () {
+          if (++numStoppedWorkers === removedWorkers.length && isFunction(callback))
+            callback(removedWorkers);
+        });
       });
 
       return;
