@@ -1,3 +1,5 @@
+/* jshint -W058 */
+
 /**
  * This example generates a bunch of jobs. Use it together
  * with the other example scripts so they have some work to do.
