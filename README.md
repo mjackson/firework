@@ -1,6 +1,7 @@
 [![npm package](https://img.shields.io/npm/v/firework.svg?style=flat-square)](https://www.npmjs.org/package/firework)
 [![build status](https://img.shields.io/travis/mjackson/firework.svg?style=flat-square)](https://travis-ci.org/mjackson/firework)
 [![dependency status](https://img.shields.io/david/mjackson/firework.svg?style=flat-square)](https://david-dm.org/mjackson/firework)
+[![code climate](https://img.shields.io/codeclimate/github/mjackson/firework.svg?style=flat-square)](https://codeclimate.com/github/mjackson/firework)
 
 [Firework](https://github.com/mjackson/firework) is a distributed, fault-tolerant work queue for [Firebase](https://www.firebase.com/).
 
