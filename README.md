@@ -24,7 +24,7 @@ jobs.push().setWithPriority({ important: 'job' }, 0);
 jobs.push().setWithPriority({ less: 'important' }, 100);
 ```
 
-Firework also provides an API for creating jobs from within your server process. A `Firework.Queue` (see **Processing Jobs** below) has a `push` method for this purpose.
+Firework also provides an API for creating jobs from within your server process. A `Firework.Queue` (see [below](https://github.com/mjackson/firework#processing-jobs)) has a `push` method for this purpose.
 
 ```js
 var queue = require('firework').createQueue('https://my-firebase.firebaseio.com/myQueue');
