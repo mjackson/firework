@@ -1,2 +1,3 @@
 modules/__tests__/browser/mocha.js
 modules/__tests__/browser/tests-bundle.js
+node_modules
