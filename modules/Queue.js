@@ -4,10 +4,8 @@ var isFunction = require('./utils/isFunction');
 var getNumChildren = require('./utils/getNumChildren');
 var mergeProperties = require('./utils/mergeProperties');
 
-if (typeof Firebase === 'undefined') {
-  var moduleID = 'firebase'; // Stop Browserify.
-  Firebase = require(moduleID);
-}
+if (typeof Firebase === 'undefined')
+  Firebase = require('firebase');
 
 var SERVER_TIMESTAMP = Firebase.ServerValue.TIMESTAMP;
 
