@@ -1,6 +1,6 @@
 var assert = require('assert');
 var expect = require('expect');
-var BASE_REF = require('./BASE_REF');
+var BASE_REF = require('./ref');
 var Runner = require('../Runner');
 var Worker = require('../Worker');
 

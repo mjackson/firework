@@ -1,5 +1,5 @@
 var assert = require('assert');
-var BASE_REF = require('./BASE_REF');
+var BASE_REF = require('./ref');
 var Worker = require('../Worker');
 
 describe('A Worker', function () {

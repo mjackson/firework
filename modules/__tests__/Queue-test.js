@@ -1,5 +1,5 @@
 var expect = require('expect');
-var BASE_REF = require('./BASE_REF');
+var BASE_REF = require('./ref');
 var Queue = require('../Queue');
 
 describe('A Queue', function () {
