@@ -1,4 +1,4 @@
-var d = require('d');
+var d = require('describe-property');
 var EventEmitter = require('events').EventEmitter;
 var isFunction = require('./utils/isFunction');
 var Queue = require('./Queue');

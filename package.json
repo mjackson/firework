@@ -5,7 +5,7 @@
   "main": "modules/index.js",
   "bin": "./bin/firework",
   "dependencies": {
-    "d": "0.1.1",
+    "describe-property": "^1.0.0",
     "firebase": "2.0.3",
     "optimist": "~0.6.0"
   },

@@ -1,4 +1,4 @@
-var d = require('d');
+var d = require('describe-property');
 var isFirebase = require('./utils/isFirebase');
 var isFunction = require('./utils/isFunction');
 var getNumChildren = require('./utils/getNumChildren');

@@ -1,4 +1,4 @@
-var d = require('d');
+var d = require('describe-property');
 var isFunction = require('./utils/isFunction');
 var Worker = require('./Worker');
 
