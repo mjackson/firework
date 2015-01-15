@@ -2,7 +2,7 @@
   "name": "firework",
   "version": "1.0.2",
   "description": "A distributed, fault-tolerant work queue for Firebase",
-  "main": "modules/index.js",
+  "main": "index.js",
   "bin": "./bin/firework",
   "dependencies": {
     "describe-property": "^1.0.0",
@@ -22,7 +22,7 @@
     "webpack": "^1.4.13"
   },
   "scripts": {
-    "test": "jshint . && mocha --reporter spec 'modules/**/__tests__/*-test.js'",
+    "test": "jshint . && mocha --reporter spec 'tests/*-test.js'",
     "test-browser": "karma start"
   },
   "repository": {

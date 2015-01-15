@@ -1,4 +1,4 @@
 .jshintignore
 .travis.yml
 examples
-modules/**/__tests__
+tests
