@@ -5,7 +5,7 @@
  * with the other example scripts so they have some work to do.
  */
 
-var Firework = require('../modules');
+var Firework = require('../index');
 var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
 var maxCount = 30;
 var interval = 10;
