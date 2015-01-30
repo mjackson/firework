@@ -6,7 +6,7 @@
  * run-workers.js example.
  */
 
-var Firework = require('../modules');
+var Firework = require('../index');
 var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
 var numWorkers = 5;
 

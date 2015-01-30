@@ -1,4 +1,4 @@
-exports.version = require('./version');
+exports.version = require('./package.json').version;
 
 exports.Queue  = require('./Queue');
 exports.Runner = require('./Runner');

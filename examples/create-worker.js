@@ -6,7 +6,7 @@
  *   $ bin/firework examples/create-worker.js -w 5
  */
 
-var Firework = require('../modules');
+var Firework = require('../index');
 var queue = Firework.createQueue('https://firework-tests.firebaseio.com');
 
 module.exports = function () {
