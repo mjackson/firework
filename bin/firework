@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Firework = require('../modules');
+var Firework = require('../');
 
 var argv = require('optimist')
   .usage([
